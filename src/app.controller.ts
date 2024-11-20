@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
 
@@ -53,5 +53,10 @@ export class AppController {
   ): string {
     return `Usuario con ID ${id} actualizado a: ${datos.nuevoNombre}`;
   }
-
+  
+  @Delete('/usuario/:id')
+  @ApiOperation({ summary: 'Elimina un usuario por su ID' })
+  eliminarUsuario(@Param('id') id: number): string {
+    return `Usuario con ID ${id} eliminado`;
+  }
 }
