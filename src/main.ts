@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,6 +23,9 @@ async function bootstrap() {
     methods: 'GET,POST,PUT,DELETE,OPTIONS', // Métodos permitidos
     allowedHeaders: 'Content-Type,Authorization', // Encabezados permitidos
   });
+
+   // Activa las validaciones globales con ValidationPipe
+   app.useGlobalPipes(new ValidationPipe());
 
   await app.listen(3000);
 }
