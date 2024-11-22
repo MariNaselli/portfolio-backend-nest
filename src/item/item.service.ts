@@ -1,0 +1,114 @@
+import { Injectable } from '@nestjs/common';
+import { dbConnection } from 'src/config/db.config';
+
+@Injectable()
+export class ItemService {
+
+  // Crear un nuevo item
+  async crearItem(item: any): Promise<any> {
+    const sql = `
+      INSERT INTO items (nombre, titulo, periodo, descripcion, url, nivel_progreso, codigo_persona, codigo_seccion)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    
+    const params = [
+      item.nombre,
+      item.titulo,
+      item.periodo,
+      item.descripcion,
+      item.url,
+      item.nivel_progreso,
+      item.codigo_persona,
+      item.codigo_seccion,
+    ];
+
+    const connection = await dbConnection.getConnection();
+    try {
+      const [result] = await connection.execute(sql, params);
+      return result; // Retorna el resultado de la consulta
+    } finally {
+      connection.release();
+    }
+  }
+
+  // Obtener todos los items
+  async obtenerItems(): Promise<any> {
+    const sql = 'SELECT * FROM items';
+    
+    const connection = await dbConnection.getConnection();
+    try {
+      const [rows] = await connection.execute(sql);
+      return Array.isArray(rows) ? rows : []; // Verificamos si 'rows' es un arreglo
+    } finally {
+      connection.release();
+    }
+  }
+
+  // Obtener un item por su código
+  async obtenerItemPorCodigo(codigo: number): Promise<any> {
+    const sql = 'SELECT * FROM items WHERE codigo = ?';
+    
+    const connection = await dbConnection.getConnection();
+    try {
+      const [rows] = await connection.execute(sql, [codigo]);
+      return Array.isArray(rows) && rows.length > 0 ? rows[0] : null; // Aseguramos que 'rows' es un arreglo
+    } finally {
+      connection.release();
+    }
+  }
+
+  // Actualizar un item por su código
+  async actualizarItem(codigo: number, item: any): Promise<any> {
+    const sql = `
+      UPDATE items SET 
+      nombre = ?, 
+      titulo = ?, 
+      periodo = ?, 
+      descripcion = ?, 
+      url = ?, 
+      nivel_progreso = ?, 
+      codigo_persona = ?, 
+      codigo_seccion = ? 
+      WHERE codigo = ?
+    `;
+    
+    const params = [
+      item.nombre,
+      item.titulo,
+      item.periodo,
+      item.descripcion,
+      item.url,
+      item.nivel_progreso,
+      item.codigo_persona,
+      item.codigo_seccion,
+      codigo,
+    ];
+
+    const connection = await dbConnection.getConnection();
+    try {
+      const [result] = await connection.execute(sql, params);
+      return result; // Retorna el resultado de la consulta
+    } finally {
+      connection.release();
+    }
+  }
+
+  // Eliminar un item por su código
+  async eliminarItem(codigo: number): Promise<any> {
+    const sql = 'DELETE FROM items WHERE codigo = ?';
+    
+    const connection = await dbConnection.getConnection();
+    try {
+      const [result] = await connection.execute(sql, [codigo]);
+      return result; // Retorna el resultado de la eliminación
+    } finally {
+      connection.release();
+    }
+  }
+}
+
+
+
+
+
+
