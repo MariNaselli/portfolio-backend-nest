@@ -47,24 +47,24 @@ export class PortfolioService {
           };
         }
 
-        const codigoSeccion = row.codigo_seccion;
-        if (!seccionesMap.has(codigoSeccion)) {
-          seccionesMap.set(codigoSeccion, {
-            codigoSeccion,
-            nombreSeccion: row.nombre_seccion,
+        const codigo_seccion = row.codigo_seccion;
+        if (!seccionesMap.has(codigo_seccion)) {
+          seccionesMap.set(codigo_seccion, {
+            codigo_seccion,
+            nombre_seccion: row.nombre_seccion,
             orden: row.orden,
             items: [],
           });
         }
 
-        seccionesMap.get(codigoSeccion).items.push({
-          codigoItem: row.codigo_item,
+        seccionesMap.get(codigo_seccion).items.push({
+          codigo_item: row.codigo_item,
           nombre: row.nombre_item,
           titulo: row.titulo_item,
           periodo: row.periodo,
           descripcion: row.descripcion_item,
           url: row.url,
-          nivelProgreso: row.nivel_progreso,
+          nivel_progreso: row.nivel_progreso,
         });
       }
 
