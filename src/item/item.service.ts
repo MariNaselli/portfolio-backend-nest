@@ -7,8 +7,8 @@ export class ItemService {
   // Crear un nuevo item
   async crearItem(item: any): Promise<any> {
     const sql = `
-      INSERT INTO items (nombre, titulo, periodo, descripcion, url, nivel_progreso, codigo_persona, codigo_seccion)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO items (nombre, titulo, periodo, descripcion, url, nivel_progreso, codigo_persona, codigo_seccion, eliminado)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)
     `;
     
     const params = [
@@ -38,6 +38,7 @@ export class ItemService {
     const connection = await dbConnection.getConnection();
     try {
       const [rows] = await connection.execute(sql);
+      console.log('Datos obtenidos del backend:', rows); // Agrega este console.log
       return Array.isArray(rows) ? rows : []; // Verificamos si 'rows' es un arreglo
     } finally {
       connection.release();
@@ -69,7 +70,7 @@ export class ItemService {
       nivel_progreso = ?, 
       codigo_persona = ?, 
       codigo_seccion = ? 
-      WHERE codigo = ?
+      WHERE codigo_item = ?
     `;
     
     const params = [
@@ -95,7 +96,7 @@ export class ItemService {
 
   // Eliminar un item por su código
   async eliminarItem(codigo: number): Promise<any> {
-    const sql = 'DELETE FROM items WHERE codigo = ?';
+    const sql = 'DELETE FROM items WHERE codigo_item = ?';
     
     const connection = await dbConnection.getConnection();
     try {
