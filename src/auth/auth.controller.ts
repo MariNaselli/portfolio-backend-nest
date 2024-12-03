@@ -9,9 +9,6 @@ export class AuthController {
   @Post('login')
   async login(@Body() loginDto: LoginDto): Promise<any> {
     const token = await this.authService.login(loginDto.username, loginDto.password);
-    if (!token) {
-      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
-    }
     return { token };
   }
 }
