@@ -1,4 +1,10 @@
-import { Controller, Post, Body, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { SignupDto } from './dto/signup.dto';
@@ -8,12 +14,17 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() loginDto: { email: string, password: string }): Promise<any> {
-    const token = await this.authService.login(loginDto.email, loginDto.password);
-    if (!token) {
+  async login(
+    @Body() loginDto: { email: string; password: string },
+  ): Promise<any> {
+    const response = await this.authService.login(
+      loginDto.email,
+      loginDto.password,
+    );
+    if (!response) {
       throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
     }
-    return { token };
+    return response;
   }
 
   // Endpoint para el signup
@@ -22,7 +33,4 @@ export class AuthController {
     const message = await this.authService.signup(signupDto);
     return { success: true, message }; // Respuesta exitosa
   }
-
 }
-
-

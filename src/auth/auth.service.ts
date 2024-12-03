@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { of } from 'rxjs';
-import { dbConnection } from 'src/config/db.config'; 
+import { dbConnection } from 'src/config/db.config';
 import { SignupDto } from './dto/signup.dto';
 
 @Injectable()
@@ -13,9 +13,6 @@ export class AuthService {
   };
 
   constructor(private readonly jwtService: JwtService) {}
-
-
-
 
   // async login(username: string, password: string): Promise<string | null> {
   //   if (
@@ -65,26 +62,28 @@ export class AuthService {
 
   async signup(signupDto: SignupDto): Promise<string> {
     const { nombre, apellido, email, password } = signupDto;
-  
+
     // Encriptar la contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
-  
+
     // SQL para insertar el nuevo usuario
     const sql = `INSERT INTO personas (nombre, apellido, email, contraseña, url_foto) VALUES (?, ?, ?, ?, 'assets/images/profile.jpg')`;
-  
+
     // SQL para verificar si el email ya existe
     const checkEmailSql = `SELECT email FROM personas WHERE email = ?`;
-  
+
     const connection = await dbConnection.getConnection();
-  
+
     try {
       // Verificar si el email ya está registrado
-      const [emailExists]: any = await connection.execute(checkEmailSql, [email]);
-  
+      const [emailExists]: any = await connection.execute(checkEmailSql, [
+        email,
+      ]);
+
       if (emailExists.length > 0) {
         throw new Error('El email ya está registrado');
       }
-  
+
       // Insertar el nuevo usuario
       const [result]: any = await connection.execute(sql, [
         nombre,
@@ -92,11 +91,11 @@ export class AuthService {
         email,
         hashedPassword,
       ]);
-  
+
       if (result.affectedRows === 0) {
         throw new Error('Error al registrar el usuario');
       }
-  
+
       return 'Usuario creado exitosamente'; // Mensaje de éxito
     } catch (error) {
       console.error('Error en el registro:', error.message);
@@ -105,10 +104,9 @@ export class AuthService {
       connection.release(); // Liberar la conexión
     }
   }
-  
 
   // Método para iniciar sesión (login)
-  async login(email: string, password: string): Promise<string> {
+  async login(email: string, password: string): Promise<any> {
     const sql = 'SELECT * FROM personas WHERE email = ?';
     const connection = await dbConnection.getConnection();
     try {
@@ -122,8 +120,11 @@ export class AuthService {
 
         if (isPasswordValid) {
           // Si las contraseñas coinciden, generamos el token JWT
-          const payload = { email: user.email, id: user.id };
-          return this.jwtService.sign(payload); // Retorna el token generado
+          const payload = { email: user.email, codigo: user.codigo };
+          return {
+            token: this.jwtService.sign(payload),
+            codigo_persona: user.codigo,
+          }; // Retorna un objeto json con el token y el codigo de la persona
         } else {
           throw new UnauthorizedException('Credenciales inválidas');
         }
@@ -135,10 +136,3 @@ export class AuthService {
     }
   }
 }
-
-
-
-
-
-
-
