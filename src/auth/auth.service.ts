@@ -70,7 +70,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, 10);
   
     // SQL para insertar el nuevo usuario
-    const sql = `INSERT INTO personas (nombre, apellido, email, contraseña) VALUES (?, ?, ?, ?)`;
+    const sql = `INSERT INTO personas (nombre, apellido, email, contraseña, url_foto) VALUES (?, ?, ?, ?, 'assets/images/profile.jpg')`;
   
     // SQL para verificar si el email ya existe
     const checkEmailSql = `SELECT email FROM personas WHERE email = ?`;
