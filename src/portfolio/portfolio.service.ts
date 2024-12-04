@@ -23,6 +23,7 @@ export class PortfolioService {
       FROM secciones s
       LEFT JOIN items i ON s.codigo_seccion = i.codigo_seccion AND i.eliminado = 0
       WHERE i.codigo_persona = ?
+      AND i.eliminado = 0
     `;
 
     const connection = await dbConnection.getConnection();

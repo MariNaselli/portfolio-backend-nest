@@ -96,8 +96,8 @@ export class ItemService {
 
   // Eliminar un item por su código
   async eliminarItem(codigo: number): Promise<any> {
-    const sql = 'DELETE FROM items WHERE codigo_item = ?';
-    
+    const sql = 'UPDATE items SET eliminado = 1 WHERE codigo_item = ?';
+
     const connection = await dbConnection.getConnection();
     try {
       const [result] = await connection.execute(sql, [codigo]);
