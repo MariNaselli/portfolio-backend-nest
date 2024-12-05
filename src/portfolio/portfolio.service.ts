@@ -79,6 +79,7 @@ export class PortfolioService {
             descripcion: row.descripcion_item,
             url: row.url,
             nivel_progreso: row.nivel_progreso,
+            codigo_seccion: codigo_seccion
           });
         }
       }
