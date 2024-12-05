@@ -59,7 +59,7 @@ export class ItemService {
   }
 
   // Actualizar un item por su código
-  async actualizarItem(codigo: number, item: any): Promise<any> {
+  async actualizarItem(codigo_item: number, item: any): Promise<any> {
     const sql = `
       UPDATE items SET 
       nombre = ?, 
@@ -82,16 +82,21 @@ export class ItemService {
       item.nivel_progreso,
       item.codigo_persona,
       item.codigo_seccion,
-      codigo,
+      codigo_item,
     ];
 
+    console.log('Parámetros enviados a la consulta:', params);
+
     const connection = await dbConnection.getConnection();
-    try {
-      const [result] = await connection.execute(sql, params);
-      return result; // Retorna el resultado de la consulta
-    } finally {
-      connection.release();
-    }
+  try {
+    const [result] = await connection.execute(sql, params);
+    return result;
+  } catch (error) {
+    console.error('Error al actualizar el item:', error); // Agrega un log del error
+    throw new Error('Error al ejecutar la consulta de actualización.');
+  } finally {
+    connection.release();
+  }
   }
 
   // Eliminar un item por su código

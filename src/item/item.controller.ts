@@ -32,16 +32,16 @@ export class ItemController {
     return this.itemService.obtenerItemPorCodigo(codigo);
   }
 
-  @Put('actualizar-item/:codigo')
+  @Put('actualizar-item/:codigo_item')
   @ApiOperation({ summary: 'Actualizar un item existente' })
   @ApiParam({ name: 'codigo', description: 'Código del item a actualizar' })
   @ApiResponse({ status: 200, description: 'Item actualizado exitosamente.', type: ItemDto })
   @ApiResponse({ status: 404, description: 'Item no encontrado.' })
   async actualizarItem(
-    @Param('codigo') codigo: number,
+    @Param('codigo_item') codigo_item: number,
     @Body() item: ItemDto
   ): Promise<ItemDto> {
-    return this.itemService.actualizarItem(codigo, item);
+    return this.itemService.actualizarItem(codigo_item, item);
   }
 
   @Delete('eliminar-item/:codigo')
