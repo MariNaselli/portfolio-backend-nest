@@ -33,7 +33,7 @@ export class ItemService {
 
   // Obtener todos los items
   async obtenerItems(): Promise<any> {
-    const sql = 'SELECT * FROM items';
+    const sql = 'SELECT * FROM items WHERE eliminado = 0';
     
     const connection = await dbConnection.getConnection();
     try {
