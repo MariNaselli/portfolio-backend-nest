@@ -9,51 +9,6 @@ export class AuthService {
 
   constructor(private readonly jwtService: JwtService) {}
 
-  // async login(username: string, password: string): Promise<string | null> {
-  //   if (
-  //     username === this.hardcodedUser.email &&
-  //     password === this.hardcodedUser.password
-  //   ) {
-  //     const payload = { username };
-  //     return this.jwtService.sign(payload); // Genera el token JWT
-  //   }
-  //   return null; // Credenciales inválidas
-  // }
-
-  // async login(email: string, password: string): Promise<string> {
-  //   const sql = 'SELECT * FROM personas WHERE email = ? AND contraseña = ?';
-  //   const connection = await dbConnection.getConnection();
-  //   try {
-  //     const [rows]: any = await connection.execute(sql, [email, password]);
-
-  //     if (Array.isArray(rows) && rows.length > 0) {
-  //       // Usuario encontrado, generamos un token JWT
-  //       const user = rows[0]; // Obtener datos del usuario si es necesario
-  //       const payload = { email: user.email, id: user.id }; // Payload para el token
-  //       return this.jwtService.sign(payload); // Retorna el token generado
-  //     }
-  //   } finally {
-  //     connection.release();
-  //   }
-  // }
-
-  // async signup(signupDto: SignupDto): Promise<string> {
-  //   const hashedPassword = await bcrypt.hash(signupDto.password, 10); // Encriptar la contraseña
-
-  //   const sql = 'INSERT INTO personas (nombre, apellido, email, contraseña) VALUES (?, ?)';
-  //   const connection = await dbConnection.getConnection();
-  //   try {
-  //     const [result]: any = await connection.execute(sql, [signupDto.email, hashedPassword]);
-
-  //     if (result.affectedRows === 0) {
-  //       throw new Error('Error al registrar el usuario');
-  //     }
-
-  //     return 'Usuario creado exitosamente'; // O algún otro mensaje
-  //   } finally {
-  //     connection.release();
-  //   }
-  // }
 
   async signup(signupDto: SignupDto): Promise<string> {
     const { nombre, apellido, email, password } = signupDto;
