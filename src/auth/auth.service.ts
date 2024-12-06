@@ -1,16 +1,11 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { of } from 'rxjs';
 import { dbConnection } from 'src/config/db.config';
 import { SignupDto } from './dto/signup.dto';
 
 @Injectable()
 export class AuthService {
-  private readonly hardcodedUser = {
-    email: 'nasellimariana@gmail.com',
-    password: 'Cv7Y6mmzKecrbEc',
-  };
 
   constructor(private readonly jwtService: JwtService) {}
 
