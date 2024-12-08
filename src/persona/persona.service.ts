@@ -18,15 +18,15 @@ export class PersonaService {
   }
 
   // Obtener una persona por su código
-  async obtenerPersonaPorCodigo(codigo: number): Promise<PersonaDto> {
-    const sql = 'SELECT * FROM personas WHERE codigo = ?';
+  async obtenerPersonaPorCodigo(uuid: string): Promise<PersonaDto> {
+    const sql = 'SELECT * FROM personas WHERE uuid = ?';
     const connection = await dbConnection.getConnection();
     try {
-      const [rows] = await connection.execute(sql, [codigo]);
+      const [rows] = await connection.execute(sql, [uuid]);
       if (Array.isArray(rows) && rows.length > 0) {
         return rows[0] as PersonaDto;
       } else {
-        throw new NotFoundException(`Persona con código ${codigo} no encontrada.`);
+        throw new NotFoundException(`Persona con código ${uuid} no encontrada.`);
       }
     } finally {
       connection.release();
@@ -37,7 +37,7 @@ export class PersonaService {
   // Actualizar una persona
   async actualizarPersona(personaDto: PersonaDto): Promise<PersonaDto> {
     
-    const { codigo } = personaDto; // El código se obtiene del DTO directamente
+    const { uuid  } = personaDto; // El código se obtiene del DTO directamente
 
     const sql = `
       UPDATE personas SET 
@@ -52,7 +52,7 @@ export class PersonaService {
         url_github = ?, 
         url_linkedin = ?, 
         url_foto = ? 
-      WHERE codigo = ?
+      WHERE uuid = ?
     `;
 
     const params = [
@@ -67,7 +67,7 @@ export class PersonaService {
       personaDto.urlGithub,
       personaDto.urlLinkedin,
       personaDto.urlFoto,
-      codigo,
+      uuid,
     ];
 
     const connection = await dbConnection.getConnection();
@@ -75,10 +75,10 @@ export class PersonaService {
       const [result]: any = await connection.execute(sql, params);
 
       if (result.affectedRows === 0) {
-        throw new NotFoundException(`Persona con código ${codigo} no encontrada.`);
+        throw new NotFoundException(`Persona con código ${ uuid} no encontrada.`);
       }
 
-      return { ...personaDto, codigo };
+      return { ...personaDto,  uuid };
     } finally {
       connection.release();
     }

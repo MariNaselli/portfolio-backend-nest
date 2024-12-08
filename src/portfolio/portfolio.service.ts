@@ -5,43 +5,45 @@ import { dbConnection } from 'src/config/db.config';
 export class PortfolioService {
   constructor() {}
 
-  async obtenerPortfolioPorCodigoPersona(codigoPersona: number) {
+  async obtenerPortfolioPorCodigoPersona(uuid: string) {
     const sqlPersona = `
-      SELECT
-        codigo AS codigo_persona, nombre AS nombre_persona, apellido, titulo AS titulo_persona,
-        descripcion AS descripcion_persona, email, telefono, ubicacion, url_instagram,
-        url_github, url_linkedin, url_foto
+        SELECT uuid, nombre, apellido, titulo, descripcion, email, 
+        telefono, ubicacion, url_instagram, url_github, url_linkedin, url_foto
       FROM personas
-      WHERE codigo = ?
+      WHERE uuid = ?
     `;
 
+    //la consulta me trae el portfolio por uuid
+
     const sqlSecciones = `
-      SELECT
-        s.codigo_seccion, s.nombre_seccion, s.orden,
+       SELECT
+        s.codigo_seccion, s.nombre_seccion,
         i.codigo_item, i.nombre AS nombre_item, i.titulo AS titulo_item, i.periodo,
-        i.descripcion AS descripcion_item, i.url, i.nivel_progreso, i.eliminado
+        i.descripcion AS descripcion_item, i.url, i.nivel_progreso
       FROM secciones s
       LEFT JOIN items i ON s.codigo_seccion = i.codigo_seccion AND i.eliminado = 0
-      WHERE i.codigo_persona = ?
-      AND i.eliminado = 0
+      LEFT JOIN personas P ON P.codigo = i.codigo_persona
+      WHERE p.uuid = ?
+      ORDER BY s.orden;
+      
     `;
 
     const connection = await dbConnection.getConnection();
     try {
       // Consulta la información de la persona
       const [personaRows]: [any[], any] = await connection.execute(sqlPersona, [
-        codigoPersona,
+        uuid,
       ]);
       if (personaRows.length === 0) {
         return null; // Retorna null si la persona no existe
       }
 
       const persona = {
-        codigo: personaRows[0].codigo_persona,
-        nombre: personaRows[0].nombre_persona,
+        uuid: personaRows[0].uuid,
+        nombre: personaRows[0].nombre,
         apellido: personaRows[0].apellido,
-        titulo: personaRows[0].titulo_persona,
-        descripcion: personaRows[0].descripcion_persona,
+        titulo: personaRows[0].titulo,
+        descripcion: personaRows[0].descripcion,
         email: personaRows[0].email,
         telefono: personaRows[0].telefono,
         ubicacion: personaRows[0].ubicacion,
@@ -53,7 +55,7 @@ export class PortfolioService {
 
       // Consulta las secciones e items
       const [seccionesRows]: [any[], any] = await connection.execute(sqlSecciones, [
-        codigoPersona,
+        uuid,
       ]);
 
       // Construye el mapa de secciones
@@ -86,9 +88,11 @@ export class PortfolioService {
 
       const secciones = Array.from(seccionesMap.values());
       secciones.sort((a, b) => a.orden - b.orden);
-
-      // Retorna el objeto final
-      return { persona, secciones };
+  
+      return { persona, secciones }; // Objeto final
+    } catch (error) {
+      console.error('Error en obtenerPortfolioPorCodigoPersona:', error.message);
+      throw new Error(error.message);
     } finally {
       connection.release();
     }

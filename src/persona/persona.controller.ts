@@ -20,17 +20,17 @@ export class PersonaController {
     return this.personaService.listarPersonas();
   }
 
-  @Get('obtener-persona/:codigo')
+  @Get('obtener-persona/:uuid')
   @ApiOperation({ summary: 'Obtener una persona por su código' })
-  @ApiParam({ name: 'codigo', description: 'Código de la persona a buscar' })
+  @ApiParam({ name: 'uuid', description: 'Código de la persona a buscar' })
   @ApiResponse({
     status: 200,
     description: 'Persona encontrada exitosamente.',
     type: PersonaDto,
   })
   @ApiResponse({ status: 404, description: 'Persona no encontrada.' })
-  async obtenerPersonaPorCodigo(@Param('codigo') codigo: number): Promise<PersonaDto> {
-    return this.personaService.obtenerPersonaPorCodigo(codigo);
+  async obtenerPersonaPorCodigo(@Param('uuid') uuid: string): Promise<PersonaDto> {
+    return this.personaService.obtenerPersonaPorCodigo(uuid);
   }
 
   @Put('actualizar-persona')

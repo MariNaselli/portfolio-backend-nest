@@ -70,10 +70,10 @@ export class AuthService {
 
         if (isPasswordValid) {
           // Si las contraseñas coinciden, generamos el token JWT
-          const payload = { email: user.email, codigo: user.codigo };
+          const payload = { email: user.email, uuid: user.uuid };
           return {
             token: this.jwtService.sign(payload),
-            codigo_persona: user.codigo,
+            uuid: user.uuid, // Devuelve el UUID del usuario logueado
             nombre: user.nombre,
             apellido: user.apellido
           }; // Retorna un objeto json con el token y el codigo de la persona

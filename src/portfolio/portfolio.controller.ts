@@ -5,8 +5,9 @@ import { PortfolioService } from './portfolio.service';
 export class PortfolioController {
   constructor(private readonly portfolioService: PortfolioService) {}
 
-  @Get('persona/:codigoPersona')
-  async obtenerPortfolioPorCodigoPersona(@Param('codigoPersona') codigoPersona: number) {
-    return await this.portfolioService.obtenerPortfolioPorCodigoPersona(codigoPersona);
+  @Get('persona/:uuid')
+  async obtenerPortfolioPorCodigoPersona(@Param('uuid') uuid: string) {
+    console.log('nombre_apellido_uuid recibido:', uuid); // Para depuración
+    return await this.portfolioService.obtenerPortfolioPorCodigoPersona(uuid);
   }
 }
