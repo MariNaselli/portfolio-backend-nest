@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { RowDataPacket } from 'mysql2';
 import { dbConnection } from 'src/config/db.config';
 
 @Injectable()
@@ -6,30 +7,46 @@ export class ItemService {
 
   // Crear un nuevo item
   async crearItem(item: any): Promise<any> {
-    const sql = `
-      INSERT INTO items (uuid_item, nombre, titulo, periodo, descripcion, url, nivel_progreso, codigo_persona, codigo_seccion, eliminado)
-      VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, 0)
-    `;
-    
-    const params = [
-      item.nombre,
-      item.titulo,
-      item.periodo,
-      item.descripcion,
-      item.url,
-      item.nivel_progreso,
-      item.codigo_persona,
-      item.codigo_seccion,
-    ];
-
     const connection = await dbConnection.getConnection();
+  
     try {
+      // Consulta para obtener el código de la persona a partir del uuid_persona
+      const [rows] = await connection.execute<RowDataPacket[]>(
+        `SELECT codigo FROM personas WHERE uuid = ?`,
+        [item.uuid_persona]
+      );
+  
+      if (rows.length === 0) {
+        throw new Error('No se encontró una persona con el uuid proporcionado.');
+      }
+  
+      // Extrae el código_persona del resultado
+      const codigoPersona = rows[0].codigo;
+  
+      // Inserta el nuevo item usando el código_persona
+      const sql = `
+        INSERT INTO items (uuid_item, nombre, titulo, periodo, descripcion, url, nivel_progreso, codigo_persona, codigo_seccion, eliminado)
+        VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, 0)
+      `;
+  
+      const params = [
+        item.nombre,
+        item.titulo,
+        item.periodo,
+        item.descripcion,
+        item.url,
+        item.nivel_progreso,
+        codigoPersona, // Usamos el código_persona obtenido
+        item.codigo_seccion,
+      ];
+  
       const [result] = await connection.execute(sql, params);
       return result; // Retorna el resultado de la consulta
     } finally {
       connection.release();
     }
   }
+  
 
   // Obtener todos los items
   async obtenerItems(): Promise<any> {
@@ -38,7 +55,6 @@ export class ItemService {
     const connection = await dbConnection.getConnection();
     try {
       const [rows] = await connection.execute(sql);
-      console.log('Datos obtenidos del backend:', rows); // Agrega este console.log
       return Array.isArray(rows) ? rows : []; // Verificamos si 'rows' es un arreglo
     } finally {
       connection.release();
@@ -82,8 +98,6 @@ export class ItemService {
       item.codigo_seccion,
       uuid_item
     ];
-
-    console.log('Parámetros enviados a la consulta:', params);
 
     const connection = await dbConnection.getConnection();
   try {
