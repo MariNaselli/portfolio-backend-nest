@@ -25,7 +25,7 @@ export class SeccionService {
   async obtenerSeccionesPorPersona(codigoPersona: number): Promise<SeccionDto[]> {
     const sql = `
       SELECT s.codigo_seccion, s.nombre_seccion, s.orden,
-             i.codigo_item, i.nombre, i.titulo, i.periodo, i.descripcion, i.url, i.nivel_progreso, i.eliminado
+             i.uuid_item, i.codigo_item, i.nombre, i.titulo, i.periodo, i.descripcion, i.url, i.nivel_progreso, i.eliminado
       FROM secciones s
       LEFT JOIN items i ON s.codigo_seccion = i.codigo_seccion
       WHERE i.codigo_persona = ?
@@ -49,6 +49,7 @@ export class SeccionService {
 
         if (row.codigo_item) {
           seccionesMap.get(row.codigo_seccion).items.push({
+            uuid_item: row.uuid_item,
             codigo_item: row.codigo_item,
             nombre: row.nombre,
             titulo: row.titulo,

@@ -1,6 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ItemDto {
+
+  @ApiProperty({
+    description: 'Código único del item',
+    example: 'effc3746-b665-11ef-a278-cecd02c24f20'
+  })
+  uuid_item: string;
+
   @ApiProperty({
     description: 'Código único del item',
     example: 1,

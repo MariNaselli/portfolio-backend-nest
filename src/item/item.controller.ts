@@ -23,33 +23,34 @@ export class ItemController {
     return this.itemService.obtenerItems();
   }
 
-  @Get('obtener-item/:codigo')
-  @ApiOperation({ summary: 'Obtener un item por su código' })
-  @ApiParam({ name: 'codigo', description: 'Código del item' }) // Decorador para el parámetro en la URL
+  @Get('obtener-item/:uuid_item')
+  @ApiOperation({ summary: 'Obtener un item por su uuid_item' })
+  @ApiParam({ name: 'uuid_item', description: 'Código uuid_item' }) // Decorador para el parámetro en la URL
   @ApiResponse({ status: 200, description: 'Item encontrado.', type: ItemDto })
   @ApiResponse({ status: 404, description: 'Item no encontrado.' })
-  async obtenerItemPorCodigo(@Param('codigo') codigo: number): Promise<ItemDto> {
-    return this.itemService.obtenerItemPorCodigo(codigo);
+  async obtenerItemPorCodigo(@Param('uuid_item') uuid_item: string): Promise<ItemDto> {
+    return this.itemService.obtenerItemPorCodigo(uuid_item);
   }
 
-  @Put('actualizar-item/:codigo_item')
+  @Put('actualizar-item/:uuid_item')
   @ApiOperation({ summary: 'Actualizar un item existente' })
-  @ApiParam({ name: 'codigo', description: 'Código del item a actualizar' })
+  @ApiParam({ name: 'uuid_item', description: 'Uuid_item a actualizar' })
   @ApiResponse({ status: 200, description: 'Item actualizado exitosamente.', type: ItemDto })
   @ApiResponse({ status: 404, description: 'Item no encontrado.' })
   async actualizarItem(
-    @Param('codigo_item') codigo_item: number,
+    @Param('uuid_item') uuid_item: string,
     @Body() item: ItemDto
   ): Promise<ItemDto> {
-    return this.itemService.actualizarItem(codigo_item, item);
+    
+    return this.itemService.actualizarItem(uuid_item, item);
   }
 
-  @Delete('eliminar-item/:codigo')
-  @ApiOperation({ summary: 'Eliminar un item por su código' })
-  @ApiParam({ name: 'codigo', description: 'Código del item a eliminar' })
+  @Delete('eliminar-item/:uuid_item')
+  @ApiOperation({ summary: 'Eliminar un item por su uuid_item' })
+  @ApiParam({ name: 'uuid_item', description: 'Uuid_item a eliminar' })
   @ApiResponse({ status: 200, description: 'Item eliminado exitosamente.' })
   @ApiResponse({ status: 404, description: 'Item no encontrado.' })
-  async eliminarItem(@Param('codigo') codigo: number): Promise<void> {
-    return this.itemService.eliminarItem(codigo);
+  async eliminarItem(@Param('uuid_item') uuid_item: string): Promise<void> {
+    return this.itemService.eliminarItem(uuid_item);
   }
 }

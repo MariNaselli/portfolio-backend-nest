@@ -18,11 +18,11 @@ export class PortfolioService {
     const sqlSecciones = `
        SELECT
         s.codigo_seccion, s.nombre_seccion,
-        i.codigo_item, i.nombre AS nombre_item, i.titulo AS titulo_item, i.periodo,
+        i.uuid_item, i.codigo_item, i.nombre AS nombre_item, i.titulo AS titulo_item, i.periodo,
         i.descripcion AS descripcion_item, i.url, i.nivel_progreso
       FROM secciones s
       LEFT JOIN items i ON s.codigo_seccion = i.codigo_seccion AND i.eliminado = 0
-      LEFT JOIN personas P ON P.codigo = i.codigo_persona
+      LEFT JOIN personas p ON p.codigo = i.codigo_persona
       WHERE p.uuid = ?
       ORDER BY s.orden;
       
@@ -74,6 +74,7 @@ export class PortfolioService {
 
         if (row.codigo_item) {
           seccionesMap.get(codigo_seccion).items.push({
+            uuid_item: row.uuid_item,
             codigo_item: row.codigo_item,
             nombre: row.nombre_item,
             titulo: row.titulo_item,
