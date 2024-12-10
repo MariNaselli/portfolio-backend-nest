@@ -59,11 +59,27 @@ export class PersonaController {
       storage: diskStorage({
         destination: './uploads', // Carpeta donde se guardan las fotos
         filename: (_req, file, callback) => {
-          const ext = path.extname(file.originalname);
-          const filename = `${uuidv4()}${ext}`;
-          callback(null, filename);
+           // Usar el UUID de la persona para nombrar el archivo
+           const uuid = _req.params.uuid;  // Obtener el UUID de la URL
+           const fileExtension = file.originalname.split('.').pop();
+           const filename = `${uuid}.${fileExtension}`;
+           callback(null, filename);
         },
       }),
+      limits: {
+        fileSize: 5 * 1024 * 1024, // Limitar a 5MB
+      },
+      fileFilter: (req, file, callback) => {
+        const allowedTypes = /jpeg|jpg|png/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimeType = allowedTypes.test(file.mimetype);
+        
+        if (extname && mimeType) {
+          return callback(null, true); // Aceptar el archivo
+        } else {
+          return callback(null, false); // Rechazar el archivo
+        }
+      },
     }),
   )
   async subirFoto(
@@ -74,11 +90,11 @@ export class PersonaController {
       throw new Error('No se ha subido una foto');
     }
 
-    const urlFoto = `http://localhost:3000/uploads/${file.filename}`;
+    const urlFoto = `http://localhost:3000/uploads/${file.filename}?t=${Date.now()}`;
     await this.personaService.actualizarFotoPersona(uuid, urlFoto);
 
     return { urlFotoActualizada: urlFoto };
   }
-s
+
 
 }
