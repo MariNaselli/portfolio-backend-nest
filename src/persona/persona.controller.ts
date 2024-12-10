@@ -1,8 +1,13 @@
 // persona.controller.ts
-import { Controller, Get, Param, Put, Body } from '@nestjs/common';
+import { Controller, Get, Param, Put, Body, UseInterceptors, Post, UploadedFile } from '@nestjs/common';
 import { PersonaService } from './persona.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { PersonaDto } from './dto/persona.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { v4 as uuidv4 } from 'uuid';
+import * as path from 'path';
+// import { Multer } from 'multer'; 
 
 // @ApiTags('Personas')
 @Controller('personas')
@@ -47,4 +52,33 @@ export class PersonaController {
   async actualizarPersona(@Body() personaDto: PersonaDto): Promise<PersonaDto> {
     return this.personaService.actualizarPersona(personaDto);
   }
+
+  @Post(':uuid/foto')
+  @UseInterceptors(
+    FileInterceptor('foto', {
+      storage: diskStorage({
+        destination: './uploads', // Carpeta donde se guardan las fotos
+        filename: (_req, file, callback) => {
+          const ext = path.extname(file.originalname);
+          const filename = `${uuidv4()}${ext}`;
+          callback(null, filename);
+        },
+      }),
+    }),
+  )
+  async subirFoto(
+    @Param('uuid') uuid: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new Error('No se ha subido una foto');
+    }
+
+    const urlFoto = `http://localhost:3000/uploads/${file.filename}`;
+    await this.personaService.actualizarFotoPersona(uuid, urlFoto);
+
+    return { urlFotoActualizada: urlFoto };
+  }
+s
+
 }

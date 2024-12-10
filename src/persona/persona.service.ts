@@ -78,10 +78,24 @@ export class PersonaService {
         throw new NotFoundException(`Persona con código ${ uuid} no encontrada.`);
       }
 
-      return { ...personaDto,  uuid };
+      return { ...personaDto, uuid };
     } finally {
       connection.release();
     }
   }
+    // Actualizar solo la foto de una persona
+    async actualizarFotoPersona(uuid: string, urlFoto: string): Promise<string> {
+      const sql = 'UPDATE personas SET url_foto = ? WHERE uuid = ?';
+      const connection = await dbConnection.getConnection();
+      try {
+        const [result]: any = await connection.execute(sql, [urlFoto, uuid]);
+        if (result.affectedRows === 0) {
+          throw new NotFoundException(`Persona con código ${uuid} no encontrada.`);
+        }
+        return urlFoto; // Devuelve la nueva URL de la foto
+      } finally {
+        connection.release();
+      }
+    }
 }
 
