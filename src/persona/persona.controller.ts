@@ -69,7 +69,7 @@ export class PersonaController {
       limits: {
         fileSize: 5 * 1024 * 1024, // Limitar a 5MB
       },
-      fileFilter: (req, file, callback) => {
+      fileFilter: (_req, file, callback) => {
         const allowedTypes = /jpeg|jpg|png/;
         const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
         const mimeType = allowedTypes.test(file.mimetype);
