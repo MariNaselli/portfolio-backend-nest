@@ -61,7 +61,8 @@ export class PersonaController {
         filename: (_req, file, callback) => {
            // Usar el UUID de la persona para nombrar el archivo
            const uuid = _req.params.uuid;  // Obtener el UUID de la URL
-           const fileExtension = file.originalname.split('.').pop();
+           const fileExtension = 'png';
+           //file.originalname.split('.').pop();
            const filename = `${uuid}.${fileExtension}`;
            callback(null, filename);
         },
