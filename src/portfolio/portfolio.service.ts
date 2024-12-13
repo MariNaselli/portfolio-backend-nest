@@ -98,4 +98,28 @@ export class PortfolioService {
       connection.release();
     }
   }
+
+  async listarPortfolios() {
+    const sql = `
+      SELECT uuid, nombre, apellido, titulo, url_foto 
+      FROM personas
+    `;
+
+    const connection = await dbConnection.getConnection();
+    try {
+      const [rows]: any[] = await connection.execute(sql);
+      return rows.map(row => ({
+        uuid: row.uuid,
+        nombre: row.nombre,
+        apellido: row.apellido,
+        titulo: row.titulo,
+        urlFoto: row.url_foto
+      }));
+    } catch (error) {
+      console.error('Error en listarPortfolios:', error.message);
+      throw new Error('Error al listar portfolios.');
+    } finally {
+      connection.release();
+    }
+  }
 }

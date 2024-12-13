@@ -9,4 +9,11 @@ export class PortfolioController {
   async obtenerPortfolioPorCodigoPersona(@Param('uuid') uuid: string) {
     return await this.portfolioService.obtenerPortfolioPorCodigoPersona(uuid);
   }
+
+  @Get('listar-portfolios')
+  async listarPortfolios() {
+    return await this.portfolioService.listarPortfolios();
+  }
+
+  
 }
