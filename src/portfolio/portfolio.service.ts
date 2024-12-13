@@ -103,6 +103,7 @@ export class PortfolioService {
     const sql = `
       SELECT uuid, nombre, apellido, titulo, url_foto 
       FROM personas
+      WHERE eliminada = 0
     `;
 
     const connection = await dbConnection.getConnection();
