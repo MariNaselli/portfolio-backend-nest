@@ -75,7 +75,8 @@ export class AuthService {
             token: this.jwtService.sign(payload),
             uuid: user.uuid, // Devuelve el UUID del usuario logueado
             nombre: user.nombre,
-            apellido: user.apellido
+            apellido: user.apellido,
+            url_foto: user.url_foto
           }; // Retorna un objeto json con el token y el codigo de la persona
         } else {
           throw new UnauthorizedException('Credenciales inválidas');
