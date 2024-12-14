@@ -1,6 +1,23 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { AppService } from './app.service';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
+
+
+class MensajeDto {
+  @ApiProperty({
+    description: 'El contenido del mensaje que será enviado al servidor',
+    example: 'Hola, este es un mensaje de prueba',
+  })
+  contenido: string;
+}
+
+export class ActualizarDto {
+  @ApiProperty({
+    description: 'El nuevo nombre que deseas asignar al usuario',
+    example: 'Juan Pérez',
+  })
+  nuevoNombre: string;
+}
 
 @ApiTags("AppController")
 @Controller()
@@ -11,5 +28,35 @@ export class AppController {
   @ApiOperation({ summary: 'Método get para probar la api' })
   getHello(): string {
     return this.appService.getHello();
+  }
+
+  @Get('/saludo')
+  @ApiOperation({ summary: 'Devuelve un saludo según el idioma especificado' })
+  getGreeting(@Query('idioma') idioma: string): string {
+    if (idioma === 'es') return 'Hola!';
+    if (idioma === 'en') return 'Hello!';
+    if (idioma === 'fr') return 'Bonjour!';
+    return 'Hola! (idioma predeterminado)';
+  }
+
+  @Post('/mensaje')
+  @ApiOperation({ summary: 'Recibe un mensaje en el body y lo responde' })
+  recibirMensaje(@Body() mensaje: MensajeDto): string {
+    return `Recibí tu mensaje: ${mensaje.contenido}`;
+  }
+
+  @Put('/usuario/:id')
+  @ApiOperation({ summary: 'Actualiza el nombre de un usuario por su ID' })
+  actualizarUsuario(
+    @Param('id') id: number,
+    @Body() datos: ActualizarDto,
+  ): string {
+    return `Usuario con ID ${id} actualizado a: ${datos.nuevoNombre}`;
+  }
+  
+  @Delete('/usuario/:id')
+  @ApiOperation({ summary: 'Elimina un usuario por su ID' })
+  eliminarUsuario(@Param('id') id: number): string {
+    return `Usuario con ID ${id} eliminado`;
   }
 }
