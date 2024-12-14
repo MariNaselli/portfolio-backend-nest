@@ -45,6 +45,17 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## Comandos de Docker
+
+```bash
+# Construir la imagen de docker
+$ docker build -t portfolio-backend-nest .
+
+# Ejecutar el contenedor en docker
+$ docker run --env-file .env -p 3000:3000 portfolio-backend-nest
+
+```
+
 ## Run tests
 
 ```bash
