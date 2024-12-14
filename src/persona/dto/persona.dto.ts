@@ -78,5 +78,6 @@ export class PersonaDto {
     example: 'https://example.com/photo.jpg',
   })
   urlFoto: string;
+  fileIdFoto: string;
 }
 

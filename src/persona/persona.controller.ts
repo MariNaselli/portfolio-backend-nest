@@ -1,5 +1,17 @@
 // persona.controller.ts
-import { Controller, Get, Param, Put, Body, UseInterceptors, Post, UploadedFile, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Put,
+  Body,
+  UseInterceptors,
+  Post,
+  UploadedFile,
+  Req,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { PersonaService } from './persona.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { PersonaDto } from './dto/persona.dto';
@@ -8,13 +20,22 @@ import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import { Request } from 'express';
+import ImageKit from 'imagekit';
 
-// import { Multer } from 'multer'; 
+// import { Multer } from 'multer';
 
 // @ApiTags('Personas')
 @Controller('personas')
 export class PersonaController {
-  constructor(private readonly personaService: PersonaService) {}
+  private imagekit: ImageKit;
+
+  constructor(private readonly personaService: PersonaService) {
+    this.imagekit = new ImageKit({
+      publicKey: 'public_8RqY6bty2y/faHYCRRzpTqWBv+4=',
+      privateKey: 'private_7WAgj70662L/wlbeSaaXfw3xCdQ=',
+      urlEndpoint: 'https://ik.imagekit.io/w1y9lfcha/',
+    });
+  }
 
   @Get('listar-personas')
   @ApiOperation({ summary: 'Listar todas las personas' })
@@ -36,7 +57,9 @@ export class PersonaController {
     type: PersonaDto,
   })
   @ApiResponse({ status: 404, description: 'Persona no encontrada.' })
-  async obtenerPersonaPorCodigo(@Param('uuid') uuid: string): Promise<PersonaDto> {
+  async obtenerPersonaPorCodigo(
+    @Param('uuid') uuid: string,
+  ): Promise<PersonaDto> {
     return this.personaService.obtenerPersonaPorCodigo(uuid);
   }
 
@@ -56,49 +79,47 @@ export class PersonaController {
   }
 
   @Post(':uuid/foto')
-  @UseInterceptors(
-    FileInterceptor('foto', {
-      storage: diskStorage({
-        destination: './uploads', // Carpeta donde se guardan las fotos
-        filename: (_req, file, callback) => {
-           // Usar el UUID de la persona para nombrar el archivo
-           const uuid = _req.params.uuid;  // Obtener el UUID de la URL
-           const fileExtension = 'png';
-           const filename = `${uuid}.${fileExtension}`;
-           callback(null, filename);
-        },
-      }),
-      limits: {
-        fileSize: 5 * 1024 * 1024, // Limitar a 5MB
-      },
-      fileFilter: (_req, file, callback) => {
-        const allowedTypes = /png/;
-        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimeType = allowedTypes.test(file.mimetype);
-        
-        if (extname && mimeType) {
-          return callback(null, true); // Aceptar el archivo
-        } else {
-          return callback(null, false); // Rechazar el archivo
-        }
-      },
-    }),
-  )
+  @UseInterceptors(FileInterceptor('foto'))
   async subirFoto(
     @Param('uuid') uuid: string,
     @UploadedFile() file: Express.Multer.File,
-    @Req() req: Request,
   ) {
     if (!file) {
-      throw new Error('No se ha subido una foto');
+      throw new HttpException(
+        'No se ha subido una foto',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    const urlFoto = `${baseUrl}/uploads/${file.filename}?t=${Date.now()}`;
-    await this.personaService.actualizarFotoPersona(uuid, urlFoto);
+    try {
+      // Obtener la persona y la información de la foto actual
+      const persona = await this.personaService.obtenerPersonaPorCodigo(uuid);
+      const fileIdAnterior = persona.fileIdFoto; // Asumiendo que guardas el fileId en la BD
   
-    return { urlFotoActualizada: urlFoto };
+      // Subir la nueva imagen a ImageKit
+      const response = await this.imagekit.upload({
+        file: file.buffer, // Buffer del archivo recibido
+        fileName: `${uuid}.png`, // Nombre que tendrá en ImageKit
+        folder: '/portfolio-web/uploads', // Carpeta en ImageKit (opcional)
+      });
+  
+      // Eliminar la imagen anterior en ImageKit, si existe
+      if (fileIdAnterior) {
+        await this.imagekit.deleteFile(fileIdAnterior);
+      }
+  
+      // Guardar el nuevo fileId y URL en la base de datos
+      const urlFoto = response.url;
+      const nuevoFileId = response.fileId; // ID único de la imagen en ImageKit
+      await this.personaService.actualizarFotoPersona(uuid, urlFoto, nuevoFileId);
+  
+      return { urlFotoActualizada: urlFoto };
+    } catch (error) {
+      throw new HttpException(
+        `Error al manejar la imagen: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
-
-
+  
 }
