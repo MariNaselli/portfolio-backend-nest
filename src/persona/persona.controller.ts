@@ -93,7 +93,7 @@ export class PersonaController {
       throw new Error('No se ha subido una foto');
     }
   
-    const baseUrl = `https://${req.get('host')}`;
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
     const urlFoto = `${baseUrl}/uploads/${file.filename}?t=${Date.now()}`;
     await this.personaService.actualizarFotoPersona(uuid, urlFoto);
   
