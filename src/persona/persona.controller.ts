@@ -1,5 +1,5 @@
 // persona.controller.ts
-import { Controller, Get, Param, Put, Body, UseInterceptors, Post, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Param, Put, Body, UseInterceptors, Post, UploadedFile, Req } from '@nestjs/common';
 import { PersonaService } from './persona.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { PersonaDto } from './dto/persona.dto';
@@ -7,6 +7,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
+import { Request } from 'express';
+
 // import { Multer } from 'multer'; 
 
 // @ApiTags('Personas')
@@ -62,7 +64,6 @@ export class PersonaController {
            // Usar el UUID de la persona para nombrar el archivo
            const uuid = _req.params.uuid;  // Obtener el UUID de la URL
            const fileExtension = 'png';
-           //file.originalname.split('.').pop();
            const filename = `${uuid}.${fileExtension}`;
            callback(null, filename);
         },
@@ -71,7 +72,7 @@ export class PersonaController {
         fileSize: 5 * 1024 * 1024, // Limitar a 5MB
       },
       fileFilter: (_req, file, callback) => {
-        const allowedTypes = /jpeg|jpg|png/;
+        const allowedTypes = /png/;
         const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
         const mimeType = allowedTypes.test(file.mimetype);
         
@@ -86,14 +87,16 @@ export class PersonaController {
   async subirFoto(
     @Param('uuid') uuid: string,
     @UploadedFile() file: Express.Multer.File,
+    @Req() req: Request,
   ) {
     if (!file) {
       throw new Error('No se ha subido una foto');
     }
-
-    const urlFoto = `http://localhost:3000/uploads/${file.filename}?t=${Date.now()}`;
+  
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const urlFoto = `${baseUrl}/uploads/${file.filename}?t=${Date.now()}`;
     await this.personaService.actualizarFotoPersona(uuid, urlFoto);
-
+  
     return { urlFotoActualizada: urlFoto };
   }
 
